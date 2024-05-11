@@ -165,7 +165,7 @@ export default function LandingPage() {
   return (
     <Box bgColor={"#eaeaea"}>
       <Container bgColor={"white"} minW={"375px"} px={0}>
-        <VStack justifyContent={"space-between"} minH={"100vh"} alignItems={"stretch"} spacing={0}>
+        <VStack justifyContent={"space-between"} h={"100vh"} alignItems={"stretch"} spacing={0}>
           <HStack py={4} px={4} justifyContent={"center"}>
             <Image src={whoWhoLogo} w={"150px"} />
           </HStack>
