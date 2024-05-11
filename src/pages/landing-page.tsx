@@ -55,7 +55,12 @@ export default function LandingPage() {
     assert(recorder.current !== null, "recorder가 없음");
 
     if (!isRecording) {
-      recorder.current.start();
+      try {
+        recorder.current.start();
+      } catch (error) {
+        // FIXME: 임시조치
+        window.location.reload();
+      }
       setIsRecording(true);
       return;
     }
