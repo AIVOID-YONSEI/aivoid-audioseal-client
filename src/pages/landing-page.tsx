@@ -7,6 +7,7 @@ import { sleep } from "../utils/sleep";
 import { assert } from "../utils/assert";
 import { toBase64 } from "../utils/to-base64";
 import { playAudio } from "../utils/play-audio";
+import { pipe, tap } from "@fxts/core";
 
 const pulseRing = keyframes`
 	0% {
@@ -75,57 +76,49 @@ export default function LandingPage() {
     await sleep(2000);
 
     assert(base64data.current !== null, "base64 데이터가 없음");
-    const formData = new FormData();
-    formData.append("audio", base64data.current.toString());
 
-    setIsLoading(true);
-    const {
-      path,
-    }: {
-      message: string;
-      path: string;
-    } = await fetch(`${BASE_URL}/audio/watermark`, {
-      method: "POST",
-      body: formData,
-    }).then((res) => res.json());
-
-    setIsLoading(false);
-    await playAudio(path);
-
-    // detect
-    const response = await fetch(path);
-    const blob = await response.blob();
-    const file = new File([blob], "audio.wav", { type: "audio/wav" });
-
-    const base64 = await toBase64(file);
-    const detectingFormData = new FormData();
-    detectingFormData.append("audio", base64.toString());
-
-    const {
-      result,
-    }: {
-      message: string;
-      result: boolean;
-    } = await fetch(`${BASE_URL}/audio/watermark/detect`, {
-      method: "POST",
-      body: detectingFormData,
-    }).then((res) => res.json());
-
-    if (!result) {
-      toast({
-        title: "음성 검증 결과",
-        description: "유효하지 않은 음성입니다.",
-        status: "error",
-        position: "top-right",
-      });
-    } else {
-      toast({
-        title: "음성 검증 결과",
-        description: "유효한 음성입니다",
-        status: "success",
-        position: "top-right",
-      });
-    }
+    await pipe(
+      base64data.current.toString(),
+      (audio: string) => {
+        const formData = new FormData();
+        formData.append("audio", audio);
+        return formData;
+      },
+      tap(() => setIsLoading(true)),
+      (formData: FormData) =>
+        fetch(`${BASE_URL}/audio/watermark`, {
+          method: "POST",
+          body: formData,
+        }),
+      (res: Response) => res.json() as Promise<{ message: string; path: string }>,
+      tap(() => setIsLoading(false)),
+      ({ path }) =>
+        Promise.all([
+          playAudio(path),
+          pipe(
+            path,
+            fetch,
+            (res: Response) => res.blob(),
+            (blob: Blob) => new File([blob], "audio.wav", { type: "audio/wav" }),
+            toBase64,
+            (base64: ArrayBuffer) => {
+              const formData = new FormData();
+              formData.append("audio", base64.toString());
+              return formData;
+            },
+            (formData: FormData) => fetch(`${BASE_URL}/audio/watermark/detect`, { method: "POST", body: formData }),
+            (res: Response) => res.json() as Promise<{ message: string; result: boolean }>,
+            ({ result }: { result: boolean }) => {
+              toast({
+                title: "음성 검증 결과",
+                description: result ? "유효한 음성입니다" : "유효하지 않은 음성입니다.",
+                status: result ? "success" : "error",
+                position: "top-right",
+              });
+            }
+          ),
+        ])
+    );
   };
 
   const onClickChatButton = () => {
@@ -139,35 +132,33 @@ export default function LandingPage() {
       return;
     }
 
-    await playAudio(URL.createObjectURL(files[0]));
-
-    const base64 = await toBase64(files[0]);
-    const formData = new FormData();
-    formData.append("audio", base64.toString());
-
-    const res: {
-      message: string;
-      result: boolean;
-    } = await fetch(`${BASE_URL}/audio/watermark/detect`, {
-      method: "POST",
-      body: formData,
-    }).then((res) => res.json());
-
-    if (!res.result) {
-      toast({
-        title: "음성 검증 결과",
-        description: "유효하지 않은 음성입니다.",
-        status: "error",
-        position: "top-right",
-      });
-    } else {
-      toast({
-        title: "음성 검증 결과",
-        description: "유효한 음성입니다",
-        status: "success",
-        position: "top-right",
-      });
-    }
+    await pipe(files[0], (file: File) =>
+      Promise.all([
+        URL.createObjectURL(file),
+        pipe(file, toBase64, (base64) => {
+          const formData = new FormData();
+          formData.append("audio", base64.toString());
+          return formData;
+        }),
+        async (formData: FormData) => {
+          const res: {
+            message: string;
+            result: boolean;
+          } = await fetch(`${BASE_URL}/audio/watermark/detect`, {
+            method: "POST",
+            body: formData,
+          }).then((res) => res.json());
+          return res.result;
+        },
+        (result: boolean) =>
+          toast({
+            title: "음성 검증 결과",
+            description: result ? "유효한 음성입니다" : "유효하지 않은 음성입니다.",
+            status: result ? "success" : "error",
+            position: "top-right",
+          }),
+      ])
+    );
   };
 
   return (
