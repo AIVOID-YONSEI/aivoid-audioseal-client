@@ -138,7 +138,7 @@ export default function LandingPage() {
             <HStack py={4} px={4} justifyContent={"center"}>
               <Image src={assetWhoWhoLogo} w={"150px"} />
             </HStack>
-            <Flex justifyContent="center" alignItems="center" h="250px" w="full" overflow="hidden" bgColor={"#eaeaea"} flexGrow={1}>
+            <Flex justifyContent="center" alignItems="center" w="full" overflow="hidden" bgColor={"#eaeaea"} flexGrow={1}>
               <Box
                 as="div"
                 position="relative"
@@ -150,7 +150,6 @@ export default function LandingPage() {
                   display: "block",
                   width: "300%",
                   height: "300%",
-                  boxSizing: "border-box",
                   marginLeft: "-100%",
                   marginTop: "-100%",
                   borderRadius: "50%",
