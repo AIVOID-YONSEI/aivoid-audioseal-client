@@ -1,14 +1,10 @@
 import { Avatar, Box, Container, Flex, HStack, keyframes, Image, IconButton, Text, VStack, useToast, Spinner, Center } from "@chakra-ui/react";
 import { ChatIcon, CloseIcon, NotAllowedIcon, PhoneIcon } from "@chakra-ui/icons";
-import whoWhoLogo from "../assets/whowho-logo.png";
-import choonsikImg from "../assets/choonsik.jpg";
+import { assetWhoWhoLogo, assetChoonsik } from "../assets";
 import { ChangeEventHandler, useEffect, useRef, useState } from "react";
-import { sleep } from "../utils/sleep";
-import { assert } from "../utils/assert";
-import { toBase64 } from "../utils/to-base64";
-import { playAudio } from "../utils/play-audio";
+import { sleep, assert, toBase64, playAudio } from "../utils";
 import { pipe, tap } from "@fxts/core";
-import { detectWatermarkedAudio, getWatermarkedAudio } from "../apis/audio-api";
+import { detectWatermarkedAudio, getWatermarkedAudio } from "../apis";
 
 const pulseRing = keyframes`
 	0% {
@@ -140,7 +136,7 @@ export default function LandingPage() {
         <Container bgColor={"white"} minW={"330px"} px={0}>
           <VStack justifyContent={"space-between"} h={"100vh"} alignItems={"stretch"} spacing={0}>
             <HStack py={4} px={4} justifyContent={"center"}>
-              <Image src={whoWhoLogo} w={"150px"} />
+              <Image src={assetWhoWhoLogo} w={"150px"} />
             </HStack>
             <Flex justifyContent="center" alignItems="center" h="250px" w="full" overflow="hidden" bgColor={"#eaeaea"} flexGrow={1}>
               <Box
@@ -162,7 +158,7 @@ export default function LandingPage() {
                   animation: `2.25s ${pulseRing} cubic-bezier(0.455, 0.03, 0.515, 0.955) -0.4s infinite`,
                 }}
               >
-                <Avatar src={choonsikImg} size="full" position="absolute" top={0} />
+                <Avatar src={assetChoonsik} size="full" position="absolute" top={0} />
               </Box>
             </Flex>
             <VStack py={4} borderBottomWidth={"1px"} borderBottomColor={"gray.200"} borderBottomStyle={"solid"}>
