@@ -134,8 +134,8 @@ export default function LandingPage() {
   };
 
   return (
-    <Box bgColor={"#eaeaea"}>
-      <Container bgColor={"white"} minW={"330px"} px={0}>
+    <Box bgColor={"#f0e9ed"}>
+      <Container bgColor={"white"} minW={"330px"} px={0} boxShadow={"0px 0px 10px 0px rgba(0,0,0,0.1)"}>
         <VStack justifyContent={"space-between"} h={"100vh"} alignItems={"stretch"} spacing={0}>
           <HStack py={4} px={4} justifyContent={"center"}>
             <Image src={assetWhoWhoLogo} w={"150px"} />
